@@ -9,12 +9,18 @@
 
 > _fabricate_ - to make by assembling parts or sections.
 
+# Update
+Using `ngrok` instead of `localtunnel` to support with client isolated networks.
+
 Fabricator is a tool for building website UI toolkits - _think ["Tiny Bootstraps, for Every Client"](http://daverupert.com/2013/04/responsive-deliverables/#tiny-bootstraps-for-every-client)_
 
 ## Quick Start
 
+##### Install Node.js
+Fabricator is built on Node.js, a platform for building fast, scalable network applications. There are pre-built [installers for each platform](http://nodejs.org/download/).You can also install with [Homebrew](http://brew.sh/) via `brew install node`
+
 ```shell
-$ curl -L https://github.com/fbrctr/fabricator/archive/master.tar.gz | tar zx --strip 1
+$ brew doctor
 $ npm start
 ```
 
