@@ -3,20 +3,21 @@
 // modules
 var assemble = require('fabricator-assemble');
 var browserSync = require('browser-sync');
-var csso = require('gulp-csso');
 var del = require('del');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var gulpif = require('gulp-if');
 var imagemin = require('gulp-imagemin');
-var prefix = require('gulp-autoprefixer');
+var postcss = require('gulp-postcss');
+var autoprefixer = require('autoprefixer');
+var cssnano = require('cssnano');
 var rename = require('gulp-rename');
 var reload = browserSync.reload;
 var runSequence = require('run-sequence');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 var webpack = require('webpack');
-
+var ngrok = require('ngrok');
 
 // configuration
 var config = {
@@ -43,47 +44,56 @@ var webpackCompiler = webpack(webpackConfig);
 
 
 // clean
-gulp.task('clean', function () {
+gulp.task('clean', function() {
 	return del([config.dest]);
 });
 
 
+// postcss processors
+var devProcessors = [
+	autoprefixer({browsers: ['last 2 version']}),
+];
+var processors = [
+	autoprefixer({browsers: ['last 2 version']}),
+	cssnano()
+];
+
+
 // styles
-gulp.task('styles:fabricator', function () {
-	gulp.src(config.src.styles.fabricator)
+gulp.task('styles:fabricator', function() {
+	gulp.src( config.src.styles.fabricator )
 		.pipe(sourcemaps.init())
-		.pipe(sass().on('error', sass.logError))
-		.pipe(prefix('last 1 version'))
-		.pipe(gulpif(!config.dev, csso()))
+		.pipe(sass().on('error', sass.logError ))
+		.pipe(gulpif(!config.dev, postcss(processors), postcss(devProcessors)))
 		.pipe(rename('f.css'))
 		.pipe(sourcemaps.write())
 		.pipe(gulp.dest(config.dest + '/assets/fabricator/styles'))
-		.pipe(gulpif(config.dev, reload({stream:true})));
+		.pipe(gulpif(config.dev, reload({stream: true})));
 });
 
-gulp.task('styles:toolkit', function () {
-	gulp.src(config.src.styles.toolkit)
+gulp.task('styles:toolkit', function() {
+	gulp.src( config.src.styles.toolkit )
 		.pipe(gulpif(config.dev, sourcemaps.init()))
-		.pipe(sass().on('error', sass.logError))
-		.pipe(prefix('last 1 version'))
-		.pipe(gulpif(!config.dev, csso()))
+		.pipe(sass().on('error', sass.logError ))
+		.pipe(gulpif(!config.dev, postcss(processors), postcss(devProcessors)))
 		.pipe(gulpif(config.dev, sourcemaps.write()))
 		.pipe(gulp.dest(config.dest + '/assets/toolkit/styles'))
-		.pipe(gulpif(config.dev, reload({stream:true})));
+		.pipe(gulpif(config.dev, reload({stream: true})));
 });
+
 
 gulp.task('styles', ['styles:fabricator', 'styles:toolkit']);
 
 
 // scripts
-gulp.task('scripts', function (done) {
-	webpackCompiler.run(function (error, result) {
+gulp.task('scripts', function(done) {
+	webpackCompiler.run(function(error, result) {
 		if (error) {
 			gutil.log(gutil.colors.red(error));
 		}
 		result = result.toJson();
 		if (result.errors.length) {
-			result.errors.forEach(function (error) {
+			result.errors.forEach(function(error) {
 				gutil.log(gutil.colors.red(error));
 			});
 		}
@@ -93,20 +103,21 @@ gulp.task('scripts', function (done) {
 
 
 // images
-gulp.task('images', ['favicon'], function () {
+gulp.task('images', ['favicon'], function() {
 	return gulp.src(config.src.images)
 		.pipe(imagemin())
 		.pipe(gulp.dest(config.dest + '/assets/toolkit/images'));
 });
 
-gulp.task('favicon', function () {
+
+gulp.task('favicon', function() {
 	return gulp.src('./src/favicon.ico')
 		.pipe(gulp.dest(config.dest));
 });
 
 
 // assemble
-gulp.task('assemble', function (done) {
+gulp.task('assemble', function(done) {
 	assemble({
 		logErrors: config.dev,
 		dest: config.dest
@@ -116,14 +127,22 @@ gulp.task('assemble', function (done) {
 
 
 // server
-gulp.task('serve', function () {
+gulp.task('serve', function() {
+	var site = '';
 
 	browserSync({
 		server: {
 			baseDir: config.dest
 		},
-		notify: false,
+		notify: true,
+		open: 'false',
+		// logLevel: "debug",
 		logPrefix: 'FABRICATOR'
+	}, function (err, bs) {
+		ngrok.connect(bs.options.get('port'), function (err, url) {
+			site = url;
+			gutil.log('NGROK: ' + gutil.colors.magenta(site));
+		});
 	});
 
 	/**
@@ -164,7 +183,7 @@ gulp.task('serve', function () {
 
 
 // default build task
-gulp.task('default', ['clean'], function () {
+gulp.task('default', ['clean'], function() {
 
 	// define build tasks
 	var tasks = [
@@ -175,7 +194,7 @@ gulp.task('default', ['clean'], function () {
 	];
 
 	// run build
-	runSequence(tasks, function () {
+	runSequence(tasks, function() {
 		if (config.dev) {
 			gulp.start('serve');
 		}
