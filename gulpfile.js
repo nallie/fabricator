@@ -134,15 +134,18 @@ gulp.task('serve', function() {
 		server: {
 			baseDir: config.dest
 		},
+		callbacks: {
+            ready: function (err, bs) {
+                ngrok.connect(bs.options.get('port'), function (err, url) {
+					site = url;
+					gutil.log('NGROK: ' + gutil.colors.magenta(site));
+                });
+            }
+        },
 		notify: true,
-		open: 'false',
+		open: false,
 		// logLevel: "debug",
 		logPrefix: 'FABRICATOR'
-	}, function (err, bs) {
-		ngrok.connect(bs.options.get('port'), function (err, url) {
-			site = url;
-			gutil.log('NGROK: ' + gutil.colors.magenta(site));
-		});
 	});
 
 	/**
