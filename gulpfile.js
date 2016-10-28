@@ -60,16 +60,6 @@ const config = {
 gulp.task('clean', del.bind(null, [config.dest]));
 
 
-// postcss processors
-var devProcessors = [
-	autoprefixer({browsers: ['last 2 version']}),
-];
-var processors = [
-	autoprefixer({browsers: ['last 2 version']}),
-	cssnano()
-];
-
-
 // styles
 gulp.task('styles:fabricator', () => {
   gulp.src(config.styles.fabricator.src)
