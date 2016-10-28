@@ -10,7 +10,6 @@
 > _fabricate_ - to make by assembling parts or sections.
 
 # Update
-Using `ngrok` instead of `localtunnel` to support with client isolated networks.
 
 Fabricator is a tool for building website UI toolkits - _think ["Tiny Bootstraps, for Every Client"](http://daverupert.com/2013/04/responsive-deliverables/#tiny-bootstraps-for-every-client)_
 
