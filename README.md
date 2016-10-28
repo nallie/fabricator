@@ -21,12 +21,14 @@ Fabricator is built on Node.js, a platform for building fast, scalable network a
 
 ```shell
 $ brew doctor
+$ brew install yarn
 $ npm start
 ```
 
 ## Documentation
 
 #### [Read the docs →](http://fbrctr.github.io/docs)
+#### [Yarn →](https://yarnpkg.com/en/docs/install)
 
 ## Demo
 
